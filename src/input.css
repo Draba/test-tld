@@ -1,0 +1,13 @@
+@tailwind base;
+
+body {
+  color: #26264F;
+  min-width: 320px;
+}
+
+.max-w-custom {
+  max-width: 1396px;
+}
+
+@tailwind components;
+@tailwind utilities;

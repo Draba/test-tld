@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test task</title>
+  <link href="src/output.css" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.7/dist/cdn.min.js"></script>
+</head>
+<body>
+  <main class="pt-8 lg:pt-24 xl:text-xl">
+    <div x-data="tldApp()" class="mx-auto px-4 max-w-custom md:flex md:items-start md:gap-[20px] lg:gap-[40px] 2xl:gap-[140px]">
+      <div class="md:w-[200px] lg:w-[282px] md:flex-shrink-0">
+        <div class="border border-solid border-purple-200 rounded-lg overflow-hidden mb-3">
+          <ul>
+            <li>
+              <button @click="selectedCategory = 'popular'"
+                      :class="{
+                          'px-7 py-3 md:p-3 xl:p-5 xl:py-3 transition-colors duration-300 w-full hover:bg-gray-100 hover:text-blue-500 text-left': selectedCategory !== 'popular',
+                          'px-7 py-3 md:p-3 xl:p-5 xl:py-3 transition-colors duration-300 w-full bg-gray-100 text-blue-500 text-left': selectedCategory === 'popular'
+                      }"
+                      type="button">Popular
+              </button>
+          </li>
+          <li>
+              <button @click="selectedCategory = 'thematic'"
+                      :class="{
+                          'px-7 py-3 md:p-3 xl:p-5 xl:py-3 transition-colors duration-300 w-full hover:bg-gray-100 hover:text-blue-500 text-left': selectedCategory !== 'thematic',
+                          'px-7 py-3 md:p-3 xl:p-5 xl:py-3 transition-colors duration-300 w-full bg-gray-100 text-blue-500 text-left': selectedCategory === 'thematic'
+                      }"
+                      type="button">Thematic
+              </button>
+          </li>
+          <li>
+              <button @click="selectedCategory = 'all'"
+                      :class="{
+                          'px-7 py-3 md:p-3 xl:p-5 xl:py-3 transition-colors duration-300 w-full hover:bg-gray-100 hover:text-blue-500 text-left': selectedCategory !== 'all',
+                          'px-7 py-3 md:p-3 xl:p-5 xl:py-3 transition-colors duration-300 w-full bg-gray-100 text-blue-500 text-left': selectedCategory === 'all'
+                      }"
+                      type="button">All
+              </button>
+          </li>
+          
+          </ul>
+          <form action="#" class="border border-solid border-purple-200 rounded-lg overflow-hidden mx-5 my-3 md:m-2 md:my-3 xl:m-4">
+            <input type="search" name="search-tld" placeholder="search tld" class="w-full h-10 p-2 pr-10 bg-[url('images/icon-search.svg')] bg-[length:20px] bg-[right_14px_center] bg-no-repeat">
+          </form>
+        </div>
+        <span class="text-center block mb-3 md:mb-5">Вы выбрали <span class="text-blue-500" x-text="selectedTlds.length"></span> tlds</span>
+        <ul class="flex flex-wrap leading-none gap-2">
+          <template x-for="(extension, index) in selectedTlds" :key="index">
+            <li class="flex items-center justify-between p-2 pr-3 bg-gray-100 rounded-md mb-3">
+              <span x-text="extension" class="leading-none"></span>
+              <button @click="removeFromSelected(extension)" type="button" class="relative w-[14px] h-[14px] ml-2 after:top-[7px] after:left-0 before:top-[7px] before:left-0 before:absolute before:border-t-[1px] before:border-solid before:border-gray-500 before:border-1 before:w-full before:rotate-45 after:absolute after:border-t-[1px] after:border-solid after:border-gray-500 after:border-1 after:w-full after:-rotate-45"></button>
+            </li>
+          </template>
+        </ul>
+      </div>
+      <div class="md:flex-grow">
+        <div class="md:flex md:items-center md:justify-between mb-8 xl:mb-10">
+          <button type="button" class="block w-full md:w-auto rounded-lg text-base p-2 xl:p-3 mb-6 md:m-0 md:order-2 leading-none uppercase min-w-[280px] border border-solid border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors duration-300">check</button>
+          <label class="relative pl-[34px] lg:text-2xl leading-none">
+            <input type="checkbox" class="hidden peer" @click="toggleSelectAll" :checked="selectedTlds.length === filteredTlds().length && filteredTlds().length > 0">
+            <span class="peer-checked:bg-blue-500 before:absolute peer-checked:before:block before:w-[5px] before:hidden before:top-1 before:left-2 before:h-[10px] before:rotate-45 before:border-solid before:border-t-0 before:border-r-2 before:border-b-2 before:border-l-0 before:border-white checkmark absolute top-1/2 -mt-[10px] md:-mt-[9px] left-0 w-[22px] h-[22px] rounded-sm border border-solid border-blue-500"></span>
+            Выбрать все
+          </label>
+        </div>
+        <div class="md:flex md:flex-wrap md:justify-between">
+          <template x-for="tld in filteredTlds()" :key="tld.id">
+            <label class="text-xs xl:text-xl break-words md:w-[48%] relative flex flex-wrap border border-solid border-purple-200 rounded-lg p-1 px-2 lg:p-3 pl-10 lg:pl-11 items-center justify-between mb-2 lg:mb-4">
+              <input type="checkbox" class="hidden peer" @change="updateAllChecked()" :value="tld.extension" x-model="selectedTlds">
+              <span class="checkmark absolute top-1/2 -mt-[11px] left-[7px] md:left-3 w-[22px] h-[22px] rounded-sm border border-solid border-blue-500 peer-checked:bg-blue-500 before:absolute peer-checked:before:block before:w-[5px] before:hidden before:top-1 before:left-2 before:h-[10px] before:rotate-45 before:border-solid before:border-t-0 before:border-r-2 before:border-b-2 before:border-l-0 before:border-white"></span>
+              <span x-text="tld.extension" class="w-[49%]"></span>
+              <div class="flex xl:flex-wrap items-center w-[38%] md:w-[42%] lg:w-[49%]">
+                <span class="flex-shrink-0 w-[16px] h-[16px] md:w-[22px] md:h-[22px] rounded-br-md rounded-bl-md border border-solid border-blue-500 bg-[url('images/icon-exclamation.svg')]"></span>
+                <div class="flex-grow text-right xl:flex">
+                  <span class="xl:text-lg text-gray-300 line-through block mb-2 xl:mb-0 xl:ml-2" x-text="tld.pricing_register['1_year']?.price ? '€' + tld.pricing_register['1_year'].price : ''"></span>
+                  <span class="xl:ml-2" x-text="tld.pricing_register['1_year']?.price ? '€' + tld.pricing_register['1_year'].price : ''"></span>
+                </div>
+              </div>
+            </label>
+          </template>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function tldApp() {
+      return {
+        tlds: [],
+        selectedCategory: 'all',
+        search: '',
+        selectedTlds: [],
+        init() {
+          this.$watch('selectedCategory', value => {
+            this.selectedTlds = [];
+          });
+          fetch('src/domains.json')
+            .then(response => response.json())
+            .then(data => {
+              this.tlds = data.slice(0, 50);
+            })
+            .catch(error => console.error('Ошибка загрузки данных TLD:', error));
+        },
+        selectCategory(category) {
+          this.selectedCategory = category;
+        },
+        toggleSelection(extension) {
+          const index = this.selectedTlds.indexOf(extension);
+          if (index > -1) {
+            this.selectedTlds.splice(index, 1);
+          } else {
+            this.selectedTlds.push(extension);
+          }
+        },
+        filteredTlds() {
+          return this.tlds.filter(tld =>
+            (this.selectedCategory === 'all' || tld.category === this.selectedCategory) &&
+            (this.search === '' || Object.values(tld).some(val => {
+              if (typeof val === 'object' && val !== null) {
+                return Object.values(val).some(innerVal =>
+                  innerVal !== null && innerVal !== undefined &&
+                  innerVal.toString().toLowerCase().includes(this.search.toLowerCase())
+                );
+              }
+              return val !== null && val !== undefined &&
+                val.toString().toLowerCase().includes(this.search.toLowerCase());
+            }))
+          );
+        },
+        toggleSelectAll() {
+          if (this.selectedTlds.length === this.filteredTlds().length) {
+            this.selectedTlds = [];
+          } else {
+            this.selectedTlds = this.filteredTlds().map(tld => tld.extension);
+          }
+        },
+        updateAllChecked() {
+          this.allChecked = this.selectedTlds.length === this.filteredTlds().length;
+        },
+        removeFromSelected(extension) {
+          this.selectedTlds = this.selectedTlds.filter(ext => ext !== extension);
+        },
+      };
+    }
+  </script>
+</body>
+</html>
